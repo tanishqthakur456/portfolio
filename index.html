@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tanishq Thakur — Animation & VFX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --ink: #0a0a0a;
+      --paper: #f5f0e8;
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --warm: #1a1208;
+      --muted: #6b6050;
+      --line: rgba(201,168,76,0.25);
+      --white: #faf7f0;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--ink);
+      color: var(--white);
+      font-family: 'DM Mono', monospace;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ─── CUSTOM CURSOR ─── */
+    .cursor {
+      position: fixed; width: 12px; height: 12px;
+      background: var(--gold); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease, background 0.3s ease;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      position: fixed; width: 40px; height: 40px;
+      border: 1px solid var(--gold); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s ease, opacity 0.3s;
+      opacity: 0.5;
+    }
+
+    /* ─── NOISE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 1000; opacity: 0.35;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 24px 60px;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.4s, background 0.4s, backdrop-filter 0.4s;
+    }
+    nav.scrolled {
+      border-color: var(--line);
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(16px);
+    }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px; letter-spacing: 4px;
+      color: var(--gold); text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    /* ─── HERO ─── */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 120px 60px 60px;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(120px, 20vw, 280px);
+      letter-spacing: -8px;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(201,168,76,0.07);
+      white-space: nowrap; pointer-events: none;
+      animation: float 8s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translate(-50%,-50%) translateY(0); }
+      50% { transform: translate(-50%,-50%) translateY(-20px); }
+    }
+    .hero-eyebrow {
+      font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 24px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block; width: 40px; height: 1px; background: var(--gold);
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(56px, 9vw, 130px);
+      line-height: 0.9; font-weight: 900;
+      letter-spacing: -3px;
+      animation: slideUp 1s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    h1 em {
+      font-style: italic; color: var(--gold);
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(60px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-sub {
+      margin-top: 28px; max-width: 480px;
+      font-size: 13px; line-height: 1.8;
+      color: var(--muted); letter-spacing: 0.5px;
+      animation: slideUp 1s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .hero-cta-row {
+      margin-top: 48px; display: flex; gap: 20px; align-items: center;
+      animation: slideUp 1s 0.35s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 32px;
+      background: var(--gold); color: var(--ink);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase;
+      text-decoration: none; border: none; cursor: none;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 32px;
+      background: transparent; color: var(--white);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      text-decoration: none; border: 1px solid rgba(255,255,255,0.15); cursor: none;
+      transition: border-color 0.3s, color 0.3s, transform 0.3s;
+    }
+    .btn-ghost:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+
+    .hero-scroll-hint {
+      position: absolute; bottom: 48px; left: 60px;
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted); display: flex; align-items: center; gap: 14px;
+      animation: fadeIn 1.5s 1s both;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .scroll-line {
+      width: 1px; height: 60px; background: var(--muted);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0%,100% { transform: scaleY(1); opacity: 0.4; }
+      50% { transform: scaleY(0.5); opacity: 1; }
+    }
+
+    /* ─── SECTION COMMON ─── */
+    section { padding: 120px 60px; }
+    .section-label {
+      font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-label::after {
+      content: ''; flex: 0 0 40px; height: 1px; background: var(--gold);
+    }
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(36px, 5vw, 72px);
+      font-weight: 700; line-height: 1.1;
+      letter-spacing: -1px;
+    }
+    .divider {
+      width: 100%; height: 1px; background: var(--line);
+      margin: 0 0 80px;
+    }
+
+    /* ─── ABOUT ─── */
+    #about { background: var(--warm); }
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: start; margin-top: 60px;
+    }
+    .about-text p {
+      font-size: 14px; line-height: 1.9; color: rgba(250,247,240,0.7);
+      margin-bottom: 20px;
+    }
+    .about-text p strong { color: var(--gold); font-weight: 400; }
+    .about-stats {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2px; align-self: end;
+    }
+    .stat-card {
+      background: rgba(201,168,76,0.06);
+      border: 1px solid var(--line);
+      padding: 32px 28px;
+      transition: background 0.3s;
+    }
+    .stat-card:hover { background: rgba(201,168,76,0.12); }
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 56px; color: var(--gold); line-height: 1;
+      display: block; margin-bottom: 8px;
+    }
+    .stat-label {
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ─── WORK ─── */
+    #work { background: var(--ink); }
+    .work-intro {
+      max-width: 600px; font-size: 14px; line-height: 1.8;
+      color: var(--muted); margin-top: 16px; margin-bottom: 60px;
+    }
+    .work-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2px;
+    }
+    .work-card {
+      position: relative; overflow: hidden;
+      background: #111;
+      aspect-ratio: 4/3;
+      cursor: none;
+    }
+    .work-card:first-child {
+      grid-column: span 2; aspect-ratio: 16/7;
+    }
+    .work-card img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.8s cubic-bezier(0.16,1,0.3,1), filter 0.5s;
+      filter: grayscale(30%) brightness(0.75);
+    }
+    .work-card:hover img {
+      transform: scale(1.06);
+      filter: grayscale(0%) brightness(0.9);
+    }
+    .work-card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 60%);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 32px;
+      transform: translateY(20px); opacity: 0;
+      transition: opacity 0.4s, transform 0.4s;
+    }
+    .work-card:hover .work-card-overlay { opacity: 1; transform: translateY(0); }
+    .work-card-cat {
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 8px;
+    }
+    .work-card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px; font-weight: 700; line-height: 1.2;
+    }
+    .work-card-num {
+      position: absolute; top: 20px; right: 24px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 64px; color: rgba(201,168,76,0.12);
+      line-height: 1; pointer-events: none;
+    }
+
+    /* ─── SKILLS ─── */
+    #skills { background: #0d0d0d; }
+    .skills-layout {
+      display: grid; grid-template-columns: 1fr 2fr;
+      gap: 80px; margin-top: 60px;
+    }
+    .skills-heading-col h2 { margin-bottom: 20px; }
+    .skills-heading-col p {
+      font-size: 13px; color: var(--muted); line-height: 1.8;
+    }
+    .skills-list {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 2px;
+    }
+    .skill-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 28px 24px;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .skill-item:hover {
+      border-color: var(--gold); background: rgba(201,168,76,0.05);
+    }
+    .skill-icon { font-size: 24px; margin-bottom: 12px; display: block; }
+    .skill-name {
+      font-size: 13px; color: var(--white); display: block; margin-bottom: 6px;
+    }
+    .skill-type {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .skill-bar-wrap {
+      margin-top: 12px; height: 2px; background: rgba(255,255,255,0.08);
+    }
+    .skill-bar {
+      height: 100%; background: var(--gold);
+      transition: width 1.5s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    /* ─── LINKS / CHANNELS ─── */
+    #connect { background: var(--warm); }
+    .connect-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2px; margin-top: 60px;
+    }
+    .connect-card {
+      position: relative; overflow: hidden;
+      background: rgba(201,168,76,0.04);
+      border: 1px solid var(--line);
+      padding: 48px 40px;
+      text-decoration: none; color: var(--white);
+      cursor: none;
+      transition: background 0.4s, border-color 0.4s;
+      display: block;
+    }
+    .connect-card:hover {
+      background: rgba(201,168,76,0.10);
+      border-color: var(--gold);
+    }
+    .connect-card::after {
+      content: '↗';
+      position: absolute; top: 36px; right: 40px;
+      font-size: 28px; color: var(--gold);
+      opacity: 0; transform: translate(-8px, 8px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .connect-card:hover::after { opacity: 1; transform: translate(0,0); }
+    .connect-platform {
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 12px; display: block;
+    }
+    .connect-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px; font-weight: 700; display: block; margin-bottom: 12px;
+    }
+    .connect-desc {
+      font-size: 12px; color: var(--muted); line-height: 1.7;
+    }
+    .connect-icon {
+      font-size: 48px; margin-bottom: 20px; display: block; line-height: 1;
+    }
+
+    /* ─── CONTACT ─── */
+    #contact {
+      background: var(--ink);
+      min-height: 60vh;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .contact-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+    }
+    .contact-left h2 { margin-bottom: 20px; }
+    .contact-left p {
+      font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 32px;
+    }
+    .contact-detail {
+      display: flex; align-items: center; gap: 16px;
+      padding: 20px 0; border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .contact-detail-label {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); min-width: 80px;
+    }
+    .contact-detail-value { color: var(--white); }
+    .contact-right {
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .contact-big-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(48px, 7vw, 100px);
+      font-weight: 900; font-style: italic;
+      color: transparent; -webkit-text-stroke: 1px rgba(201,168,76,0.3);
+      line-height: 0.9;
+      animation: float 10s ease-in-out infinite reverse;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--ink); padding: 32px 60px;
+      border-top: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    footer p { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 3px; color: var(--gold);
+    }
+
+    /* ─── SCROLL REVEAL ─── */
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1),
+                  transform 0.8s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: 0.1s; }
+    .reveal-d2 { transition-delay: 0.2s; }
+    .reveal-d3 { transition-delay: 0.3s; }
+    .reveal-d4 { transition-delay: 0.4s; }
+
+    /* ─── MARQUEE ─── */
+    .marquee-wrap {
+      overflow: hidden; background: var(--gold);
+      padding: 14px 0; white-space: nowrap;
+    }
+    .marquee-track {
+      display: inline-flex;
+      animation: marquee 20s linear infinite;
+    }
+    .marquee-item {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 15px; letter-spacing: 4px; color: var(--ink);
+      padding: 0 40px;
+    }
+    .marquee-dot {
+      color: rgba(10,10,10,0.4);
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 20px 28px; }
+      .nav-links { display: none; }
+      #hero, section { padding: 100px 28px 80px; }
+      h1 { font-size: clamp(44px, 12vw, 90px); }
+      .about-grid, .skills-layout, .contact-inner { grid-template-columns: 1fr; gap: 48px; }
+      .work-grid { grid-template-columns: 1fr; }
+      .work-card:first-child { grid-column: auto; aspect-ratio: 4/3; }
+      .connect-grid { grid-template-columns: 1fr; }
+      .skills-list { grid-template-columns: 1fr 1fr; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+      .hero-scroll-hint { left: 28px; }
+      .contact-big-text { font-size: clamp(40px, 14vw, 80px); }
+    }
+    @media (max-width: 540px) {
+      .about-stats { grid-template-columns: 1fr; }
+      .skills-list { grid-template-columns: 1fr; }
+      .stat-num { font-size: 40px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">TT</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#connect">Channels</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-text">TANISHQ</div>
+  <div class="hero-eyebrow reveal">Portfolio · 2025</div>
+  <h1>
+    Tanishq<br/>
+    <em>Thakur</em>
+  </h1>
+  <p class="hero-sub reveal reveal-d1">
+    BDes in Animation &amp; VFX · AAFT Noida<br/>
+    Crafting worlds through pencil, pixels, and motion — where hand-drawn art meets cinematic storytelling.
+  </p>
+  <div class="hero-cta-row reveal reveal-d2">
+    <a href="#work" class="btn-primary">View Work →</a>
+    <a href="#contact" class="btn-ghost">Get in Touch</a>
+  </div>
+  <div class="hero-scroll-hint">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marquee">
+    <span class="marquee-item">Animation</span><span class="marquee-item marquee-dot">·</span>
+    <span class="marquee-item">VFX</span><span class="marquee-item marquee-dot">·</span>
+    <span class="marquee-item">Portrait Sketching</span><span class="marquee-item marquee-dot">·</span>
+    <span class="marquee-item">Graphic Design</span><span class="marquee-item marquee-dot">·</span>
+    <span class="marquee-item">Motion Graphics</span><span class="marquee-item marquee-dot">·</span>
+    <span class="marquee-item">Poster Design</span><span class="marquee-item marquee-dot">·</span>
+    <span class="marquee-item">Illustration</span><span class="marquee-item marquee-dot">·</span>
+    <span class="marquee-item">Storytelling</span><span class="marquee-item marquee-dot">·</span>
+    <!-- duplicate for seamless loop -->
+    <span class="marquee-item">Animation</span><span class="marquee-item marquee-dot">·</span>
+    <span class="marquee-item">VFX</span><span class="marquee-item marquee-dot">·</span>
+    <span class="marquee-item">Portrait Sketching</span><span class="marquee-item marquee-dot">·</span>
+    <span class="marquee-item">Graphic Design</span><span class="marquee-item marquee-dot">·</span>
+    <span class="marquee-item">Motion Graphics</span><span class="marquee-item marquee-dot">·</span>
+    <span class="marquee-item">Poster Design</span><span class="marquee-item marquee-dot">·</span>
+    <span class="marquee-item">Illustration</span><span class="marquee-item marquee-dot">·</span>
+    <span class="marquee-item">Storytelling</span><span class="marquee-item marquee-dot">·</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label reveal">About Me</div>
+  <div class="about-grid">
+    <div class="about-text reveal reveal-d1">
+      <h2 style="margin-bottom:28px;">A storyteller at<br/><em style="font-style:italic;color:var(--gold);">heart &amp; hand</em></h2>
+      <p>
+        I'm <strong>Tanishq Thakur</strong>, a creative pursuing a Bachelor of Design in Animation &amp; VFX at the <strong>Asian Academy of Film &amp; Television (AAFT), Noida</strong>.
+      </p>
+      <p>
+        My practice spans traditional pencil portraiture to digital poster design and motion work — I believe the best visuals are born where <strong>craft meets concept</strong>. Each piece begins with observation: the weight of a shadow, the tension of a gaze, the kinetic energy of a moment.
+      </p>
+      <p>
+        Whether sketching faces with a grid and graphite or building compositions in Photoshop and After Effects, I bring the same <strong>attention to structure, light, and narrative</strong> to every frame.
+      </p>
+      <div style="margin-top:36px;">
+        <a href="https://www.behance.net/tanishqthakur7" target="_blank" class="btn-primary" style="display:inline-flex;">Behance Portfolio →</a>
+      </div>
+    </div>
+    <div class="about-stats reveal reveal-d2">
+      <div class="stat-card">
+        <span class="stat-num">3+</span>
+        <span class="stat-label">Years Drawing</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">15+</span>
+        <span class="stat-label">Design Projects</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">7</span>
+        <span class="stat-label">Disciplines</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">∞</span>
+        <span class="stat-label">Ideas in Progress</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <div class="section-label reveal">Selected Work</div>
+  <h2 class="reveal reveal-d1">Projects &amp; <em style="font-style:italic;color:var(--gold);">Pieces</em></h2>
+  <p class="work-intro reveal reveal-d2">
+    A selection of portraits, poster designs, and visual explorations — drawn, composed, and crafted across disciplines.
+  </p>
+  <div class="work-grid">
+
+    <div class="work-card reveal">
+      <img src="/mnt/user-data/uploads/potratr.jpeg" alt="Portrait Study — Girl with Straight Hair" loading="lazy"/>
+      <div class="work-card-num">01</div>
+      <div class="work-card-overlay">
+        <span class="work-card-cat">Pencil Portrait · Grid Method</span>
+        <span class="work-card-title">Portrait Study — Straight Hair</span>
+      </div>
+    </div>
+
+    <div class="work-card reveal reveal-d1">
+      <img src="/mnt/user-data/uploads/lakshika_potrate.jpeg" alt="Portrait Study — Lakshika" loading="lazy"/>
+      <div class="work-card-num">02</div>
+      <div class="work-card-overlay">
+        <span class="work-card-cat">Hatching &amp; Ink Portrait</span>
+        <span class="work-card-title">Lakshika — Cross-hatch Study</span>
+      </div>
+    </div>
+
+    <div class="work-card reveal reveal-d2">
+      <img src="/mnt/user-data/uploads/girl_potrate.jpeg" alt="Portrait Study — Soft Shading" loading="lazy"/>
+      <div class="work-card-num">03</div>
+      <div class="work-card-overlay">
+        <span class="work-card-cat">Graphite Portrait · Grid Method</span>
+        <span class="work-card-title">Girl Portrait — Soft Shading</span>
+      </div>
+    </div>
+
+    <div class="work-card reveal reveal-d1">
+      <img src="/mnt/user-data/uploads/football_poster.jpg" alt="College Football Showdown Poster" loading="lazy"/>
+      <div class="work-card-num">04</div>
+      <div class="work-card-overlay">
+        <span class="work-card-cat">Graphic Design · Event Poster</span>
+        <span class="work-card-title">College Football Showdown</span>
+      </div>
+    </div>
+
+    <div class="work-card reveal reveal-d2">
+      <img src="/mnt/user-data/uploads/fesstival_poster.jpg" alt="Happy New Year 2026 Festival Poster" loading="lazy"/>
+      <div class="work-card-num">05</div>
+      <div class="work-card-overlay">
+        <span class="work-card-cat">Digital Composition · Festival</span>
+        <span class="work-card-title">New Year 2026 — City Skyline</span>
+      </div>
+    </div>
+
+    <div class="work-card reveal reveal-d1">
+      <img src="/mnt/user-data/uploads/explore-the-india-travel-and-tourism-social-media-post-template-free-psd.webp" alt="Explore The India — Social Media Post" loading="lazy"/>
+      <div class="work-card-num">06</div>
+      <div class="work-card-overlay">
+        <span class="work-card-cat">Social Media Design · Travel</span>
+        <span class="work-card-title">Explore The India — Tourism Post</span>
+      </div>
+    </div>
+
+    <div class="work-card reveal reveal-d2">
+      <img src="/mnt/user-data/uploads/Artboard_2.jpg" alt="Thakur Transport — Brand Identity" loading="lazy"/>
+      <div class="work-card-num">07</div>
+      <div class="work-card-overlay">
+        <span class="work-card-cat">Brand Identity · Logo Design</span>
+        <span class="work-card-title">Thakur Transport — Logo &amp; Identity</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="skills-layout">
+    <div class="skills-heading-col reveal">
+      <div class="section-label">Expertise</div>
+      <h2>Tools &amp;<br/><em style="font-style:italic;color:var(--gold);">Craft</em></h2>
+      <p style="margin-top:20px;">
+        From traditional pencil work to digital production pipelines — these are the tools and disciplines that define my practice.
+      </p>
+    </div>
+    <div class="skills-list" id="skillsGrid">
+
+      <div class="skill-item reveal reveal-d1">
+        <span class="skill-icon">✏️</span>
+        <span class="skill-name">Pencil Portraiture</span>
+        <span class="skill-type">Traditional Art</span>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="90%" style="width:0%"></div></div>
+      </div>
+
+      <div class="skill-item reveal reveal-d2">
+        <span class="skill-icon">🎨</span>
+        <span class="skill-name">Adobe Photoshop</span>
+        <span class="skill-type">Digital Design</span>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="85%" style="width:0%"></div></div>
+      </div>
+
+      <div class="skill-item reveal reveal-d3">
+        <span class="skill-icon">🎬</span>
+        <span class="skill-name">After Effects</span>
+        <span class="skill-type">Motion / VFX</span>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="78%" style="width:0%"></div></div>
+      </div>
+
+      <div class="skill-item reveal reveal-d1">
+        <span class="skill-icon">📐</span>
+        <span class="skill-name">Adobe Illustrator</span>
+        <span class="skill-type">Vector Design</span>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="80%" style="width:0%"></div></div>
+      </div>
+
+      <div class="skill-item reveal reveal-d2">
+        <span class="skill-icon">🖼️</span>
+        <span class="skill-name">Poster Design</span>
+        <span class="skill-type">Graphic Design</span>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="88%" style="width:0%"></div></div>
+      </div>
+
+      <div class="skill-item reveal reveal-d3">
+        <span class="skill-icon">🎥</span>
+        <span class="skill-name">Video Editing</span>
+        <span class="skill-type">Post-Production</span>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="75%" style="width:0%"></div></div>
+      </div>
+
+      <div class="skill-item reveal reveal-d1">
+        <span class="skill-icon">🌐</span>
+        <span class="skill-name">Brand Identity</span>
+        <span class="skill-type">Logo &amp; Visual</span>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="72%" style="width:0%"></div></div>
+      </div>
+
+      <div class="skill-item reveal reveal-d2">
+        <span class="skill-icon">📱</span>
+        <span class="skill-name">Social Media Design</span>
+        <span class="skill-type">Digital Marketing</span>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="82%" style="width:0%"></div></div>
+      </div>
+
+      <div class="skill-item reveal reveal-d3">
+        <span class="skill-icon">🎭</span>
+        <span class="skill-name">Storytelling</span>
+        <span class="skill-type">Narrative &amp; Concept</span>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="92%" style="width:0%"></div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CHANNELS / CONNECT -->
+<section id="connect">
+  <div class="section-label reveal">Online Presence</div>
+  <h2 class="reveal reveal-d1">Find Me<br/><em style="font-style:italic;color:var(--gold);">Online</em></h2>
+  <div class="connect-grid">
+
+    <a href="https://www.behance.net/tanishqthakur7" target="_blank" rel="noopener" class="connect-card reveal reveal-d1">
+      <span class="connect-icon">𝐁e</span>
+      <span class="connect-platform">Behance</span>
+      <span class="connect-name">@tanishqthakur7</span>
+      <span class="connect-desc">
+        Browse the full portfolio — portraits, poster designs, brand projects, and all things visual. Updated with new work regularly.
+      </span>
+    </a>
+
+    <a href="https://youtube.com/@tanishqthakur1131" target="_blank" rel="noopener" class="connect-card reveal reveal-d2">
+      <span class="connect-icon">▶</span>
+      <span class="connect-platform">YouTube</span>
+      <span class="connect-name">@tanishqthakur1131</span>
+      <span class="connect-desc">
+        Watch process videos, animation experiments, VFX breakdowns, and behind-the-scenes creative content.
+      </span>
+    </a>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="contact-left reveal">
+      <div class="section-label">Contact</div>
+      <h2>Let's Create<br/><em style="font-style:italic;color:var(--gold);">Together</em></h2>
+      <p style="margin-top:20px;">
+        Open for collaborations, freelance projects, internships, and creative conversations. Don't hesitate to reach out.
+      </p>
+      <div class="contact-detail">
+        <span class="contact-detail-label">Email</span>
+        <span class="contact-detail-value">tanishq@1234gmail.com</span>
+      </div>
+      <div class="contact-detail">
+        <span class="contact-detail-label">Mobile</span>
+        <span class="contact-detail-value">+91 88609 87980</span>
+      </div>
+      <div class="contact-detail">
+        <span class="contact-detail-label">Location</span>
+        <span class="contact-detail-value">Dwarka Mor, Delhi / AAFT Noida</span>
+      </div>
+      <div class="contact-detail">
+        <span class="contact-detail-label">Institute</span>
+        <span class="contact-detail-value">AAFT — Asian Academy of Film &amp; Television</span>
+      </div>
+      <div style="margin-top:40px;display:flex;gap:16px;flex-wrap:wrap;">
+        <a href="https://www.behance.net/tanishqthakur7" target="_blank" class="btn-primary">Behance →</a>
+        <a href="https://youtube.com/@tanishqthakur1131" target="_blank" class="btn-ghost">YouTube →</a>
+      </div>
+    </div>
+    <div class="contact-right reveal reveal-d2">
+      <div class="contact-big-text">LET'S<br/>WORK.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">TT</span>
+  <p>© 2025 Tanishq Thakur · BDes Animation &amp; VFX · AAFT Noida</p>
+  <p style="font-size:10px;letter-spacing:1px;color:var(--muted);">Built with ❤️ and graphite</p>
+</footer>
+
+<script>
+  // ─── CURSOR ───
+  const cursor = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursorRing');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+    cursorRing.style.left = e.clientX + 'px';
+    cursorRing.style.top  = e.clientY + 'px';
+  });
+  document.querySelectorAll('a, button, .work-card, .skill-item, .connect-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width  = '24px';
+      cursor.style.height = '24px';
+      cursorRing.style.opacity = '0';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width  = '12px';
+      cursor.style.height = '12px';
+      cursorRing.style.opacity = '0.5';
+    });
+  });
+
+  // ─── NAV SCROLL ───
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // ─── SCROLL REVEAL ───
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        // animate skill bars
+        const bar = e.target.querySelector('.skill-bar');
+        if (bar) bar.style.width = bar.dataset.width;
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ─── SKILL BARS on section enter ───
+  const skillsSection = document.getElementById('skills');
+  const skillsIo = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      document.querySelectorAll('.skill-bar').forEach(b => {
+        b.style.width = b.dataset.width;
+      });
+    }
+  }, { threshold: 0.2 });
+  skillsIo.observe(skillsSection);
+</script>
+</body>
+</html>
